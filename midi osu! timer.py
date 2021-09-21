@@ -89,6 +89,21 @@ def tick_ms(list, bpm):
         a += 1
     return ms
 
+def clean_up_ms(list):
+    a = 1
+    lis = []
+    temp = list[0]
+    dif = 0
+    while a < len(list):
+        dif = list[a] - temp
+        if dif < 50:
+            a += 1
+        else:
+            lis.append(list[a])
+            temp = list[a]
+            a += 1
+    return lis
+
 # Function importing two time stamps and calculating BPM.
 def point2(p1, p2, bpm_old, pOriginal, s2, s4):
     diff = p2 - p1
@@ -127,13 +142,23 @@ def point2(p1, p2, bpm_old, pOriginal, s2, s4):
 def compare_BPM(bpm1, pOriginal, p2, s2, s4):
     len2 = p2 - pOriginal
 
-    len1 = (round(1000 * (60 / bpm1 * 4)) * s4) + (round(1000 * (60 / bpm1 * 2)) * s2)
-    
-    diff = len2 - len1
+    len1 = 0
+    a = 0
+    out = 0
+    while out < 1:
+        len1 = (round(1000 * (60 / bpm1 * 4)) * s4) + (round(1000 * (60 / bpm1 * 2)) * s2) * a
+        if len1 < len2:
+            a += 1
+        else:
+            out = 2
+    diff1 = len1 - len2
+    diff2 = len2 - ((round(1000 * (60 / bpm1 * 4)) * s4) + (round(1000 * (60 / bpm1 * 2)) * s2) * (a - 1))
 
     # False is no need for a new timing point
     # True is yes create a new timing point
-    if diff in range(-10, 11):
+    if diff2 in range(-20, 20):
+        return 'false'
+    elif diff1 in range(-20, 20):
         return 'false'
     else:
         return 'true'
@@ -204,7 +229,7 @@ def strip(path):
 
 # Executing the actual program
 def run_file(first, path, bpm):
-    list = tick_ms(remove_dupes(final_list_create(list_create(readAndPrint(path)))), bpm)
+    list = clean_up_ms(tick_ms(remove_dupes(final_list_create(list_create(readAndPrint(path)))), bpm))
     writeFile(createList(list, first), strip(path))
     message.show()
     text.show()
