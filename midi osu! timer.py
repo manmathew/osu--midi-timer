@@ -1,4 +1,5 @@
 # Modules to import
+import algorithm as time
 from mido import MidiFile
 from guizero import App, Text, PushButton, TextBox, Picture
 
@@ -103,66 +104,7 @@ def clean_up_ms(list):
             temp = list[a]
             a += 1
     return lis
-
-# Function importing two time stamps and calculating BPM.
-def point2(p1, p2, bpm_old, pOriginal, s2, s4):
-    diff = p2 - p1
-    bpm_new = 0
-    snap = 0
-
-    # If statement for 1/4s
-    if diff < 100:
-        bpm_new = round(15 * (1 / (diff / 1000)), 3)
-        snap = 4
     
-    # If statement for 1/2s
-    else:
-        bpm_new = round(30 * (1 / (diff / 1000)), 3)
-        snap = 2
-    
-    # If statement increasing old bpm snaps
-    if snap == 2:
-        s2 += 1
-    else:
-        s4 += 1
-
-    # Comparing BPMs to decide if it's necessary and returning tuple with offset, bpm, and true/false
-    if compare_BPM(bpm_old, pOriginal, p2, s2, s4) == 'false':
-        return (p1, bpm_old, 'false', pOriginal, s2, s4)
-    else:
-        pOriginal = p1
-        if snap == 2:
-            s2 = 1
-            s4 = 0
-        else:
-            s2 = 0
-            s4 = 1
-        return (p1, bpm_new, 'true', pOriginal, s2, s4)
-    
-def compare_BPM(bpm1, pOriginal, p2, s2, s4):
-    len2 = p2 - pOriginal
-
-    len1 = 0
-    a = 0
-    out = 0
-    while out < 1:
-        len1 = (round(1000 * (60 / bpm1 * 4)) * s4) + (round(1000 * (60 / bpm1 * 2)) * s2) * a
-        if len1 < len2:
-            a += 1
-        else:
-            out = 2
-    diff1 = len1 - len2
-    diff2 = len2 - ((round(1000 * (60 / bpm1 * 4)) * s4) + (round(1000 * (60 / bpm1 * 2)) * s2) * (a - 1))
-
-    # False is no need for a new timing point
-    # True is yes create a new timing point
-    if diff2 in range(-20, 20):
-        return 'false'
-    elif diff1 in range(-20, 20):
-        return 'false'
-    else:
-        return 'true'
-
 # Class that is for the timing points in the final list
 class Point:
     def __init__(self):
@@ -170,34 +112,34 @@ class Point:
         self.bpm = float(0)
         self.num = 'None'
 
-# Function using the list from midi import and creating a list with all the BPMs and offsets
-def createList(lis, first):
-    final = []
+# Function setting the offset correctly
+def offset(list, first):
+    list_final = []
+    begin = list[0]
     i = 0
-    old = 1
-    pOriginal = first
-    s2 = 0
-    s4 = 0
+    while i < len(list):
+        val = list[i] - begin + first
+        list_final.append(val)
+        i += 1
 
-    while i < (len(lis) - 1):
+    return list_final
+
+# Function to use the algorithm and Output the timed list
+def timeList(list, first):
+    list0 = offset(list, first)
+    list1 = time.go_through_list(list0)
+    list2 = []
+    i = 0
+
+    while i < len(list1):
         apps = Point()
-        tup = point2(lis[i] + first, lis[i + 1] + first, old, pOriginal, s2, s4)
-        pOriginal = tup[3]
-        s2 = tup[4]
-        s4 = tup[5]
-        if tup[2] == 'true':
-            apps.offset = tup[0]
-            apps.bpm = tup[1]
-            apps.num = str(i)
-            final.append(apps)
-            i += 1
-
-        else:
-            i += 1
-
-        old = tup[1]
-
-    return final
+        tup = list1[i]
+        apps.offset = int(round(tup[1]))
+        apps.bpm = tup[0]
+        list2.append(apps)
+        i += 1
+    
+    return list2
 
 # Function calculating the bpm number for the .osu file
 def calc(bpm):
@@ -230,7 +172,7 @@ def strip(path):
 # Executing the actual program
 def run_file(first, path, bpm):
     list = clean_up_ms(tick_ms(remove_dupes(final_list_create(list_create(readAndPrint(path)))), bpm))
-    writeFile(createList(list, first), strip(path))
+    writeFile(timeList(list, first), strip(path))
     message.show()
     text.show()
 
