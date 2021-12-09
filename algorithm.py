@@ -1,21 +1,5 @@
 # Python file that has the timing algorithm
-'''
-take first two points calculate bpm
-then see if it still lines up with the next note within 10ms
-if yes then repeat for next note
-if no then set that as the bpm and start over with the next pair (point 2 becomes point 1 and the 3rd point beocmes point 2)
-if it is no after it has been yes then we set the last yes point as point 1 and the no index as point 2
 
-to make sure that we don't have a problem with searching for notes that don't exist at the end of the list
-have the following variables:
-
-i for the index of point1
-n for the index of the furthest point being looked at CURRENTLY (so all the i+1s are just going to be n)
-a for the difference between the length of the list and the index of n
-
-if n becomes 1 before searching for the index then start over with the next i
-if length - i becomes zero then exit the loop and return the list of bpms and their respective time
-'''
 def calculate_bpm(difference, snap):
     bpm = float(60000 / (difference * snap))
     return bpm
