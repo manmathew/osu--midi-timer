@@ -3,11 +3,11 @@
  An application that will time mp3's based on the .midi file that is recorded along-side the audio.
 
  ## How to use it
- -Open the .midi file you want to time
+-Open the .midi file you want to time
 -Enter the offset of the first note (yes you have to find that yourself in the osu! editor)
 -Enter the bpm that the .midi file was recorded at
   -If you don't know, the default is 120bpm
- -Save a .txt file you want the timing points to be saved in.
+-Save a .txt file you want the timing points to be saved in.
 -Click the start button and wait for the text "Done!" to appear.
 
 ### Requirements
@@ -18,6 +18,7 @@ If you want to use full file paths in windows, change lines 196 and 201 to have 
 
 ## Installation
 Either download the executable or download the source code and run the 'midi osu! timer.py' file after installing the mido and guizero modules.
+If you download the source code, don't download from release (it's outdated and I can't fix it).
 
 ### Executables
 Windows Executable has been made!
