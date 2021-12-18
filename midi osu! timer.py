@@ -148,7 +148,7 @@ def calc(bpm):
 
 # Function writing to the .txt file
 def writeFile(lis, path):
-    path_final = path + 'points.txt'
+    path_final = path
     f = open(path_final, 'w')
     i = 0
     f.write('[TimingPoints]\n')
@@ -159,20 +159,11 @@ def writeFile(lis, path):
         f.write(temp)
         i += 1
 
-def strip(path):
-    data = path.split('/')
-    data.pop()
-    a = 0
-    new_path = ''
-    while a < len(data):
-        new_path = new_path + str(data[a]) + '/'
-        a += 1
-    return new_path
-
 # Executing the actual program
-def run_file(first, path, bpm):
+def run_file(first, path, bpm, save):
     list = clean_up_ms(tick_ms(remove_dupes(final_list_create(list_create(readAndPrint(path)))), bpm))
-    writeFile(timeList(list, first), strip(path))
+    save1 = save + '.txt'
+    writeFile(timeList(list, first), save1)
     message.show()
     text.show()
 
@@ -182,13 +173,23 @@ def run_file(first, path, bpm):
 # CAN BE MOVED TO ANOTHER .PY FILE EVENTUALLY
 # TOO LAZY TO USE MULTIPLE .PY FILES RIGHT NOW
 
-app = App(title="midi osu! timer", height=500, width=500, bg="white")
-app.icon = '/Users/constantin/Documents/visual/(midi timing) src/full_icon_time.png'
+app = App(title="midi osu! timer", height=600, width=500, bg="white")
+app.icon = 'E:\(midi timing) src\\full_icon_time.png'
+
+def get_file():
+    file_name_midi.value = app.select_file(title="Select file", folder=".", filetypes=[["midi Files", "*.mid"]], save=False, filename="")
+
+def save_file():
+    file_name_txt.value = app.select_file(filetypes=[["Text Documents", "*.txt*"], ["Text documents", "*.txt"]], save=True)
+
+#button = app.select_file(title="Select file", folder=".", filetypes=[["All files", "*.*"]], save=False, filename=".mid")
 
 message = Text(app, text="")
 message = Text(app, text="Enter below the full path of the .midi file")
-input_box_midi = TextBox(app, width=50)
-input_box_midi.text_color = 'black'
+PushButton(app, command=get_file, text="Open file")
+file_name_midi = Text(app)
+#file_name_midi = TextBox(app, width=50)
+#file_name_midi.text_color = 'black'
 
 message = Text(app, text="Enter below the offset of the first timing point")
 input_box_first = TextBox(app)
@@ -200,12 +201,10 @@ message = Text(app, text="Enter below the bpm that the midii file was recorded a
 input_box_bpm = TextBox(app)
 input_box_bpm.text_color = 'black'
 
-message = Text(app, text="")
-
-picture = Picture(app, image="/Users/constantin/Documents/visual/(midi timing) src/midi_pic.png")
+picture = Picture(app, image="E:\(midi timing) src\\midi_pic.png")
 
 def start():
-    path = str(input_box_midi.value)
+    path = str(file_name_midi.value)
 
     number0 = 0
     try:
@@ -219,7 +218,11 @@ def start():
     except ValueError:
         print('invalid number')
 
-    run_file(number0, path, number1)
+    #run_file(number0, path, number1, file_name_txt)
+    run_file(number0, path, number1, file_name_txt.value)
+
+PushButton(app, command=save_file, text="Save file")
+file_name_txt = Text(app)
 
 message = Text(app, text="Click 'Start' to start the timing process")
 message = Text(app, text="")
@@ -227,7 +230,6 @@ button = PushButton(app, text="Start", command=start, args=[])
 
 text = Text(app, text="Done!", size=24)
 text.hide()
-message = Text(app, text="The output file will be called 'points.txt' and is in the same folder as the imported file")
 message.hide()
 
 app.display()
